@@ -91,6 +91,7 @@ The default is `CodePointCompare`
 """
 abstract type CompareStyle end
 
+struct NoCompare        <: CompareStyle end # For equality checks, can't be equal
 struct ByteCompare      <: CompareStyle end # Compare bytewise
 struct ASCIICompare     <: CompareStyle end # Compare bytewise for ASCII subset, else codepoint
 struct WordCompare      <: CompareStyle end # Compare first not equal word with <
@@ -98,19 +99,24 @@ struct UTF16Compare     <: CompareStyle end # Compare first not equal word adjus
 struct WidenCompare     <: CompareStyle end # Narrower can be simply widened for comparisons
 struct CodePointCompare <: CompareStyle end # Compare CodePoints
 
+promote_rule(::Type{NoCompare},    ::Type{<:CompareStyle})   = NoCompare
 promote_rule(::Type{ByteCompare},  ::Type{CodePointCompare}) = ByteCompare
 promote_rule(::Type{WordCompare},  ::Type{CodePointCompare}) = WordCompare
 promote_rule(::Type{UTF16Compare}, ::Type{CodePointCompare}) = UTF16Compare
 promote_rule(::Type{ASCIICompare}, ::Type{CodePointCompare}) = ASCIICompare
 promote_rule(::Type{WidenCompare}, ::Type{CodePointCompare}) = WidenCompare
 
+"""Determine if a string has multiple codeunit encoding"""
 function is_multi end
 
-push!(dev_def,
-      :AlwaysValid, :UnknownValidity,
-      :SingleCodeUnitEncoding, :MultiCodeUnitEncoding,
-      :CharSetOther, :CharSetBinary, :CharSetASCIICompat, :CharSetISOCompat,
-      :CharSetBMP, :CharSetUnicode, :CharSetUnicodePlus, :CharSetUnknown,
-      :CodePointCompare, :ByteCompare, :ASCIICompare, :WordCompare, :UTF16Compare, :WidenCompare)
+is_multi(::Type{T}) where {T<:AbstractString} = EncodingStyle(T) === MultiCodeUnitEncoding()
+is_multi(::T) where {T<:AbstractString} = is_multi(T)
 
-push!(dev_ext, :ValidatedStyle, :EncodingStyle, :CharSetStyle, :CompareStyle, :is_multi)
+@api define_develop AlwaysValid, UnknownValidity,
+                    SingleCodeUnitEncoding, MultiCodeUnitEncoding,
+                    CharSetOther, CharSetBinary, CharSetASCIICompat, CharSetISOCompat,
+                    CharSetBMP, CharSetUnicode, CharSetUnicodePlus, CharSetUnknown,
+                    NoCompare, CodePointCompare, ByteCompare, ASCIICompare, WordCompare,
+                    UTF16Compare, WidenCompare
+
+@api develop ValidatedStyle, EncodingStyle, CharSetStyle, CompareStyle, is_multi

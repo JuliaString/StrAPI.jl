@@ -7,10 +7,9 @@ Licensed under MIT License, see LICENSE.md
 """
 module StrAPI
 
-const api_ext = Symbol[] # Symbols that define the public API (import to extend)
-const api_def = Symbol[] # Symbols that define the public API (can't extend)
-const dev_ext = Symbol[] # Symbols that define the development API (import to extend)
-const dev_def = Symbol[] # Symbols that define the development API (can't extend)
+using APITools
+
+@api init
 
 const V6_COMPAT = VERSION < v"0.7.0-DEV"
 const BIG_ENDIAN    = (ENDIAN_BOM == 0x01020304)
@@ -25,45 +24,23 @@ const CodeUnitTypes = Union{UInt8, UInt16, UInt32}
 symstr(s...)   = Symbol(string(s...))
 quotesym(s...) = Expr(:quote, symstr(s...))
 
-joinvec(mod, list) = join([join(eval(mod, val), ",") for val in list], ",")
-joinmod(cur, mod, list) = joinvec(eval(cur, mod), list)
+@api public found, find_result, basetype, charset, encoding, cse, codepoints
 
-export @using_list, @import_list, @export_list
+@api define_develop V6_COMPAT, BIG_ENDIAN, LITTLE_ENDIAN, CodeUnitTypes, CodePoints,
+                    MaybeSub, symstr, quotesym
 
-function handle_list(cmd, mod, list)
-    cur = @static V6_COMPAT ? current_module() : @__MODULE__
-    println("cmd=$cmd, mod=$mod, cur=$cur, list=$list")
-    mp(string(cmd, joinvec(eval(cur, mod), list)))
-end
+export @preserve
 
-macro using_list(mod, symlist...)
-    handle_list("using $mod: ", mod, symlist)
-end
-macro import_list(mod, symlist...)
-    handle_list("import $mod: ", mod, symlist)
-end
-macro export_list(mod, symlist...)
-    handle_list("export ", mod, symlist)
-end
+@api base convert, getindex, length, map, collect, in, hash, sizeof, size, strides,
+          pointer, unsafe_load, string, read, write, start, next, done, reverse,
+          nextind, prevind, typemin, typemax, rem, size, ndims, first, last, eltype,
+          isless, isequal, ==, -, +, *, ^, cmp, promote_rule, one, repeat, filter,
+          print, show, isimmutable, chop, chomp, replace, ascii, uppercase, lowercase,
+          lstrip, rstrip, strip, lpad, rpad, split, rsplit, join, IOBuffer,
+          containsnul, unsafe_convert, cconvert, IteratorSize
 
-push!(dev_def,
-      :V6_COMPAT, :BIG_ENDIAN, :LITTLE_ENDIAN, :CodeUnitTypes,
-      :MaybeSub, Symbol("@preserve"), :symstr, :quotesym)
-
-const base_dev_ext =
-    Symbol[:containsnul, :unsafe_convert, :cconvert, :IteratorSize]
-
-eval(mp("import Base: $(join(base_dev_ext, ","))"))
-
-const base_api_ext =
-    Symbol[:convert, :getindex, :length, :map, :collect, :in, :hash, :sizeof, :size, :strides,
-           :pointer, :unsafe_load, :string, :read, :write, :start, :next, :done, :reverse,
-           :nextind, :prevind, :typemin, :typemax, :rem, :size, :ndims, :first, :last, :eltype,
-           :isless, :isequal, :(==), :-, :+, :*, :^, :cmp, :promote_rule, :one, :repeat, :filter,
-           :print, :show, :isimmutable, :chop, :chomp, :replace, :ascii, :uppercase, :lowercase,
-           :lstrip, :rstrip, :strip, :lpad, :rpad, :split, :rsplit, :join, :IOBuffer]
-
-eval(mp("import Base: $(join(base_api_ext, ","))"))
+# Conditionally import or export names that are only in v0.6 or in master
+@api maybe_public codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
 
 @static if V6_COMPAT
     include("compat.jl")
@@ -90,16 +67,18 @@ else # !V6_COMPAT
     const is_uppercase    = isuppercase
     const lowercase_first = lowercasefirst
     const uppercase_first = uppercasefirst
+    function is_letter end
 
     using Base: unsafe_crc32c, Fix2
 
     # Location of some methods moved from Base.UTF8proc to Base.Unicode
     const UC = Base.Unicode
+    const CodeUnits = Base.CodeUnits
 
 end # !V6_COMPAT
 
-push!(dev_def, :unsafe_crc32c, :Fix2)
-push!(api_ext, :is_lowercase, :is_uppercase, :lowercase_first, :uppercase_first)
+@api define_develop unsafe_crc32c, Fix2, CodeUnits
+@api public is_lowercase, is_uppercase, lowercase_first, uppercase_first
 
 function found end
 function find_result end
@@ -116,21 +95,25 @@ function encoding end
 """Get the character set / encoding used by a string type"""
 function cse end
 
-push!(api_ext, :found, :find_result, :basetype, :charset, :encoding, :cse)
+function _write end
+function _print end
+function _isvalid end
+function _lowercase end
+function _uppercase end
+function _titlecase end
+@api develop _write, _print, _isvalid, _lowercase, _uppercase, _titlecase
 
 include("error.jl")
 include("traits.jl")
+include("codepoints.jl")
 include("uni.jl")
 
-# Conditionally import or export names that are only in v0.6 or in master
-for sym in (:codeunit, :codeunits, :ncodeunits, :codepoint,
-            :thisind, :firstindex, :lastindex)
-    push!(api_ext, sym)
-    isdefined(Base, sym) || eval(Expr(:function, sym))
-end
+@api define_public Uni
 
 # Possibly import functions, give new names with underscores
 
+# Todo: Should probably have a @api function for importing/defining renamed functions
+namlst = Symbol[]
 for (pref, lst) in
     ((0,
       ((:textwidth,      :text_width),
@@ -144,7 +127,7 @@ for (pref, lst) in
        (:punct,  :punctuation),
        (:print,  :printable))),
 
-     (2, (:ascii, :digit, :space, :alpha, :numeric,
+     (2, (:ascii, :digit, :space, :numeric,
           :valid, :defined, :assigned, :empty,
           :latin, :bmp, :unicode))
      ), nam in lst
@@ -154,35 +137,40 @@ for (pref, lst) in
          ? (symstr("is", nam[1]), symstr("is_", nam[2]))
          : (symstr("is", nam), symstr("is_", nam)))
 
-     if isdefined(Base, oldname)
-         eval(Expr(:import, :Base, oldname))
-         eval(Expr(:const, Expr(:(=), newname, oldname)))
-     else
-         eval(Expr(:function, newname))
-     end
-     push!(api_ext, newname)
+    if isdefined(Base, oldname)
+        #eval(Expr(:import, :Base, oldname))
+        eval(Expr(:const, Expr(:(=), newname, oldname)))
+    else
+        eval(Expr(:function, newname))
+    end
+    push!(namlst, newname)
 end
+@eval @api public $(namlst...)
 
 # Handle renames where function was deprecated
 
-for nam in (:is_alphanumeric, :is_graphic)
-    eval(Expr(:function, nam))
-    push!(api_ext, nam)
-end
+# Todo: have function for defining and making public
+function is_alphabetic end
+function is_alphanumeric end
+function is_graphic end
+@api public is_alphabetic, is_alphanumeric, is_graphic, is_letter
 
-# import and add new names with underscores
+# import and add new names from UTF8proc/Unicode
 
-const ucnams = (:graphemes, :category_code, :category_abbrev, :category_string)
-for nam in ucnams ; eval(mp("const $nam = UC.$nam")) ; end
-append!(api_ext, ucnams)
 const is_grapheme_break  = UC.isgraphemebreak
 const is_grapheme_break! = UC.isgraphemebreak!
-    
-const fnd = find
+for nam in (:graphemes, :category_code, :category_abbrev, :category_string)
+    eval(mp("const $nam = UC.$nam"))
+end
 
-push!(dev_def, :utf8crc, :create_vector, :outhex, :get_iobuffer)
-push!(dev_ext, :ind2chr, :chr2ind)
-push!(api_ext, :fnd, :find, :is_grapheme_break, :is_grapheme_break!)
+@api public graphemes, is_grapheme_break, is_grapheme_break!,
+            category_code, category_abbrev, category_string
+
+const fnd = find
+@api public fnd, find
+
+@api define_develop create_vector, outhex, get_iobuffer
+@api develop utf8crc, ind2chr, chr2ind
 
 # Operations for find/search operations
 
@@ -200,6 +188,8 @@ abstract type Direction <: FindOp end
 struct Fwd   <: Direction end
 struct Rev   <: Direction end
 
-push!(api_def, :FindOp, :Direction, :Fwd, :Rev, :First, :Last, :Next, :Prev, :Each, :All)
+@api define_public FindOp, Direction, Fwd, Rev, First, Last, Next, Prev, Each, All
+
+@api freeze
 
 end # module StrAPI

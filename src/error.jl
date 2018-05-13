@@ -81,6 +81,5 @@ const UTF_ERR_NORMALIZE         = " is not one of :NFC, :NFD, :NFKC, :NFKD"
 
 @static isdefined(Base, :string_index_err) && (const index_error = Base.string_index_err)
 
-push!(dev_def,
-      :boundserr, :unierror, :nulerr, :neginderr, :codepoint_error,
-      :argerror, :ascii_err, :ncharerr, :repeaterr, :index_error)
+@api define_develop boundserr, unierror, nulerr, neginderr, codepoint_error,
+                    argerror, ascii_err, ncharerr, repeaterr, index_error

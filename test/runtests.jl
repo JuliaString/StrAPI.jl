@@ -1,7 +1,8 @@
 # This file is part of StrAPI, License is MIT: LICENSE.md
 
-using StrAPI
-@using_list StrAPI api_ext api_def dev_ext dev_def
+using APITools
+
+@api test StrAPI
 
 @static V6_COMPAT ? (using Base.Test) : (using Test)
 

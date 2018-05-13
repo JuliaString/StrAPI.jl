@@ -1,7 +1,11 @@
 # This file contains code that was a part of Julia
 # License is MIT: see LICENSE.md
 
-push!(api_def, :Unicode)
+const StringIndexError = UnicodeError
+
+@api define_public StringIndexError
+
+@api define_public Unicode
 
 module Unicode
 export normalize, graphemes, isassigned
@@ -12,6 +16,8 @@ end
 
 Base.replace(str::String, pair::Pair{String,String}; count::Integer=0) =
     replace(str, pair.first, pair.second, count)
+
+const is_letter = isalpha
 
 ## Start of code from operators.jl =================================================
 ##
@@ -182,7 +188,7 @@ function get_iobuffer(siz)
     out
 end
 
-push!(api_def, :copyto!, :unsafe_copyto!, :Nothing, :Cvoid, :AbstractChar)
+@api define_public copyto!, unsafe_copyto!, Nothing, Cvoid, AbstractChar
 
 import Base: find, ind2chr, chr2ind
 
