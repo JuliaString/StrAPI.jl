@@ -12,7 +12,7 @@ module Uni
                      Zs,Zl,Zp,Cc,Cf,Cs,Co,Ci,Cm)
 
 # strings corresponding to the category constants
-const catstrings = [
+const category_strings = [
     "Other, not assigned",
     "Letter, uppercase",
     "Letter, lowercase",
@@ -47,17 +47,17 @@ const catstrings = [
     "Malformed, bad data",
 ]
 
-for i = Int(typemin(Category)):Int(typemax(Category))
-    eval(Expr(:macrocall, Symbol("@doc"), string("Unicode Category: ", catstrings[i+1]),
-              Symbol(Category[i][1])))
-end
-
 Base.rem(c::Category, t::Type{T}) where {T<:Integer}  = T(Int(c))
 Base.rem(c::Category, t::Type{T}) where {T<:Unsigned} = T(Int(c))
 Base.isequal(x::Category, t::Integer) = isequal(Int(x), t)
 Base.:(+)(x::Category, t::Integer)  = Category(Int(x) + t)
 Base.:(-)(x::Category, y::Integer)  = Category(Int(x) - y)
 Base.:(-)(x::Category, y::Category) = Int(x) - Int(y)
+
+for i = Int(typemin(Category)):Int(typemax(Category))
+    eval(Expr(:macrocall, Symbol("@doc"), string("Unicode Category: ", category_strings[i+1]),
+              Symbol(Category(i))))
+end
 
 ## Constants for calling the normalize function
 

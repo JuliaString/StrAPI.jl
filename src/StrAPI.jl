@@ -15,7 +15,19 @@ const V6_COMPAT = VERSION < v"0.7.0-DEV"
 const BIG_ENDIAN    = (ENDIAN_BOM == 0x01020304)
 const LITTLE_ENDIAN = !BIG_ENDIAN
 
-const mp = V6_COMPAT ? parse : Meta.parse
+Base.parse(::Type{Expr}, args...; kwargs...) = Meta.parse(args...; kwargs...)
+
+_stdout()       = @static V6_COMPAT ? STDOUT : stdout
+
+@static if V6_COMPAT
+    const pwc = print_with_color
+else
+    pwc(c, io, str) = printstyled(io, str; color = c)
+end
+pwc(c, l) = pwc(c, _stdout(), l)
+
+pr_ul(l)     = pwc(:underline, l)
+pr_ul(io, l) = pwc(:underline, io, l)
 
 const MaybeSub{T} = Union{T, SubString{T}} where {T<:AbstractString}
 
@@ -26,8 +38,12 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 
 @api public found, find_result, basetype, charset, encoding, cse, codepoints
 
+@api develop pwc, pr_ul
+
+@api define_public StringError
+
 @api define_develop V6_COMPAT, BIG_ENDIAN, LITTLE_ENDIAN, CodeUnitTypes, CodePoints,
-                    MaybeSub, symstr, quotesym
+                    MaybeSub, symstr, quotesym, _stdout
 
 export @preserve
 
@@ -37,7 +53,7 @@ export @preserve
           isless, isequal, ==, -, +, *, ^, cmp, promote_rule, one, repeat, filter,
           print, show, isimmutable, chop, chomp, replace, ascii, uppercase, lowercase,
           lstrip, rstrip, strip, lpad, rpad, split, rsplit, join, IOBuffer,
-          containsnul, unsafe_convert, cconvert, IteratorSize
+          containsnul, unsafe_convert, cconvert
 
 # Conditionally import or export names that are only in v0.6 or in master
 @api maybe_public codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
@@ -75,6 +91,8 @@ else # !V6_COMPAT
     const UC = Base.Unicode
     const CodeUnits = Base.CodeUnits
 
+    @api base IteratorSize
+
 end # !V6_COMPAT
 
 @api define_develop unsafe_crc32c, Fix2, CodeUnits
@@ -103,12 +121,12 @@ function _uppercase end
 function _titlecase end
 @api develop _write, _print, _isvalid, _lowercase, _uppercase, _titlecase
 
-include("error.jl")
+include("errors.jl")
 include("traits.jl")
 include("codepoints.jl")
 include("uni.jl")
 
-@api define_public Uni
+@api define_module Uni, StrErrors, UC
 
 # Possibly import functions, give new names with underscores
 
@@ -138,7 +156,6 @@ for (pref, lst) in
          : (symstr("is", nam), symstr("is_", nam)))
 
     if isdefined(Base, oldname)
-        #eval(Expr(:import, :Base, oldname))
         eval(Expr(:const, Expr(:(=), newname, oldname)))
     else
         eval(Expr(:function, newname))
@@ -160,7 +177,7 @@ function is_graphic end
 const is_grapheme_break  = UC.isgraphemebreak
 const is_grapheme_break! = UC.isgraphemebreak!
 for nam in (:graphemes, :category_code, :category_abbrev, :category_string)
-    eval(mp("const $nam = UC.$nam"))
+    eval(parse(Expr, "const $nam = UC.$nam"))
 end
 
 @api public graphemes, is_grapheme_break, is_grapheme_break!,

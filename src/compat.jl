@@ -5,8 +5,6 @@ const StringIndexError = UnicodeError
 
 @api define_public StringIndexError
 
-@api define_public Unicode
-
 module Unicode
 export normalize, graphemes, isassigned
 const normalize  = Base.UTF8proc.normalize_string
@@ -18,12 +16,15 @@ Base.replace(str::String, pair::Pair{String,String}; count::Integer=0) =
     replace(str, pair.first, pair.second, count)
 
 const is_letter = isalpha
+const IteratorSize = Base.iteratorsize
+
+@api public IteratorSize
 
 ## Start of code from operators.jl =================================================
 ##
 ## It is used to support the new string searching syntax on v0.6.2
 
-@static if !method_exists(in, (Any,))
+if !isdefined(Base, :Fix2)
 """
     Fix2(f, x)
 
@@ -40,7 +41,9 @@ struct Fix2{F,T} <: Function
 end
 
 (f::Fix2)(y) = f.f(y, f.x)
+end
 
+if !method_exists(isequal, (Any,))
 """
     isequal(x)
 
@@ -53,7 +56,9 @@ used to implement specialized methods.
 isequal(x) = Fix2(isequal, x)
 
 const EqualTo = Fix2{typeof(isequal)}
+end
 
+if !method_exists(==, (Any,))
 """
     ==(x)
 
@@ -64,7 +69,9 @@ The returned function is of type `Base.Fix2{typeof(==)}`, which can be
 used to implement specialized methods.
 """
 ==(x) = Fix2(==, x)
+end
 
+if !method_exists(in, (Any,))
 """
     in(x)
 
@@ -75,9 +82,8 @@ The returned function is of type `Base.Fix2{typeof(in)}`, which can be
 used to implement specialized methods.
 """
 in(x) = Fix2(in, x)
-
 const OccursIn = Fix2{typeof(in)}
-end # !HAS_COMPAT
+end
 
 ## end of code from operators.jl =================================================
 
@@ -145,7 +151,7 @@ const uppercase_first = ucfirst
 codepoint(v::Char) = v%UInt32
 
 @noinline index_error(s::AbstractString, i::Integer) =
-    throw(UnicodeError(UTF_ERR_INVALID_INDEX, Int(i), codeunit(s, i)))
+    strerror(StrErrors.INVALID_INDEX, Int(i), codeunit(s, i))
 
 macro preserve(args...)
     syms = args[1:end-1]
