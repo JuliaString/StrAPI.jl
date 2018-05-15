@@ -136,19 +136,4 @@ const STRIPMARK = (1<<13)
 """Strip unassigned codepoints"""
 const STRIPNA    = (1<<14)
 
-const STABLE    = 1<<1
-const COMPAT    = 1<<2
-const COMPOSE   = 1<<3
-const DECOMPOSE = 1<<4
-const IGNORE    = 1<<5
-const REJECTNA  = 1<<6
-const NLF2LS    = 1<<7
-const NLF2PS    = 1<<8
-const NLF2LF    = NLF2LS | NLF2PS
-const STRIPCC   = 1<<9
-const CASEFOLD  = 1<<10
-const CHARBOUND = 1<<11
-const LUMP      = 1<<12
-const STRIPMARK = 1<<13
-
 end # module Uni
