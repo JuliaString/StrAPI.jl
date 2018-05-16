@@ -11,13 +11,7 @@ using APITools
 
 @api init
 
-const V6_COMPAT = VERSION < v"0.7.0-DEV"
-const BIG_ENDIAN    = (ENDIAN_BOM == 0x01020304)
-const LITTLE_ENDIAN = !BIG_ENDIAN
-
-Base.parse(::Type{Expr}, args...; kwargs...) = Meta.parse(args...; kwargs...)
-
-_stdout()       = @static V6_COMPAT ? STDOUT : stdout
+_stdout() = @static V6_COMPAT ? STDOUT : stdout
 
 @static if V6_COMPAT
     const pwc = print_with_color
@@ -36,16 +30,27 @@ const CodeUnitTypes = Union{UInt8, UInt16, UInt32}
 symstr(s...)   = Symbol(string(s...))
 quotesym(s...) = Expr(:quote, symstr(s...))
 
+@static if V6_COMPAT
+    parse_error(s) = throw(ParseError(s))
+    _sprint(f, s) = sprint(endof(s), f, s)
+    _sprint(f, s, c) = sprint(endof(s), f, s, c)
+else
+    parse_error(s) = throw(Base.Meta.ParseError(s))
+    _sprint(f, s) = sprint(f, s; sizehint=lastindex(s))
+    _sprint(f, s, c) = sprint(f, s, c; sizehint=lastindex(s))
+end
+
 @api public found, find_result, basetype, charset, encoding, cse, codepoints
 
 @api develop pwc, pr_ul
 
 @api define_public StringError
 
-@api define_develop V6_COMPAT, BIG_ENDIAN, LITTLE_ENDIAN, CodeUnitTypes, CodePoints,
-                    MaybeSub, symstr, quotesym, _stdout
+@api define_develop CodeUnitTypes, CodePoints,
+                    MaybeSub, symstr, quotesym, _stdout, _sprint, parse_error
 
-export @preserve
+# This trick is necessary to pass the symbol of the macro name, and not try to evaluate it
+@eval @api define_develop $(Symbol("@preserve"))
 
 @api base convert, getindex, length, map, collect, in, hash, sizeof, size, strides,
           pointer, unsafe_load, string, read, write, start, next, done, reverse,
@@ -92,9 +97,9 @@ else # !V6_COMPAT
 
     @api base IteratorSize
 
-end # !V6_COMPAT
+    const is_letter = isletter
 
-const is_letter = isalpha
+end # !V6_COMPAT
 
 @api define_develop unsafe_crc32c, Fix2, CodeUnits
 @api public is_lowercase, is_uppercase, lowercase_first, uppercase_first
