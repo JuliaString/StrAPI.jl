@@ -15,7 +15,6 @@ end
 Base.replace(str::String, pair::Pair{String,String}; count::Integer=0) =
     replace(str, pair.first, pair.second, count)
 
-const is_letter = isalpha
 const IteratorSize = Base.iteratorsize
 
 @api public IteratorSize

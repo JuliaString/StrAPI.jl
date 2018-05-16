@@ -83,7 +83,6 @@ else # !V6_COMPAT
     const is_uppercase    = isuppercase
     const lowercase_first = lowercasefirst
     const uppercase_first = uppercasefirst
-    function is_letter end
 
     using Base: unsafe_crc32c, Fix2
 
@@ -94,6 +93,8 @@ else # !V6_COMPAT
     @api base IteratorSize
 
 end # !V6_COMPAT
+
+const is_letter = isalpha
 
 @api define_develop unsafe_crc32c, Fix2, CodeUnits
 @api public is_lowercase, is_uppercase, lowercase_first, uppercase_first
