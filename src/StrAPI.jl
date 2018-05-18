@@ -9,19 +9,9 @@ module StrAPI
 
 using APITools
 
-@api init
+const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
 
 _stdout() = @static V6_COMPAT ? STDOUT : stdout
-
-@static if V6_COMPAT
-    const pwc = print_with_color
-else
-    pwc(c, io, str) = printstyled(io, str; color = c)
-end
-pwc(c, l) = pwc(c, _stdout(), l)
-
-pr_ul(l)     = pwc(:underline, l)
-pr_ul(io, l) = pwc(:underline, io, l)
 
 const MaybeSub{T} = Union{T, SubString{T}} where {T<:AbstractString}
 
@@ -30,26 +20,15 @@ const CodeUnitTypes = Union{UInt8, UInt16, UInt32}
 symstr(s...)   = Symbol(string(s...))
 quotesym(s...) = Expr(:quote, symstr(s...))
 
-@static if V6_COMPAT
-    parse_error(s) = throw(ParseError(s))
-    _sprint(f, s) = sprint(endof(s), f, s)
-    _sprint(f, s, c) = sprint(endof(s), f, s, c)
-else
-    parse_error(s) = throw(Base.Meta.ParseError(s))
-    _sprint(f, s) = sprint(f, s; sizehint=lastindex(s))
-    _sprint(f, s, c) = sprint(f, s, c; sizehint=lastindex(s))
-end
-
 @api public found, find_result, basetype, charset, encoding, cse, codepoints
-
-@api develop pwc, pr_ul
 
 @api define_public StringError
 
-@api define_develop CodeUnitTypes, CodePoints,
-                    MaybeSub, symstr, quotesym, _stdout, _sprint, parse_error
+@api define_develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
+                    _stdout, _sprint, parse_error
 
 # This trick is necessary to pass the symbol of the macro name, and not try to evaluate it
+# Need some way of indicating a macro name to the @api macro
 @eval @api define_develop $(Symbol("@preserve"))
 
 @api base convert, getindex, length, map, collect, in, hash, sizeof, size, strides,
@@ -63,9 +42,15 @@ end
 # Conditionally import or export names that are only in v0.6 or in master
 @api maybe_public codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
 
+@static NEW_ITERATE && (@api base iterate)
+
 @static if V6_COMPAT
     include("compat.jl")
 else # !V6_COMPAT
+
+    parse_error(s) = throw(Base.Meta.ParseError(s))
+    _sprint(f, s) = sprint(f, s; sizehint=lastindex(s))
+    _sprint(f, s, c) = sprint(f, s, c; sizehint=lastindex(s))
 
     using Random
 
@@ -99,8 +84,22 @@ else # !V6_COMPAT
 
     const is_letter = isletter
 
+    pwc(c, io, str) = printstyled(io, str; color = c)
+
 end # !V6_COMPAT
 
+pwc(c, l) = pwc(c, _stdout(), l)
+
+pr_ul(l)     = pwc(:underline, l)
+pr_ul(io, l) = pwc(:underline, io, l)
+
+@api develop pwc, pr_ul
+
+const str_next = @static NEW_ITERATE ? iterate : next
+str_done(str, i) = done(str, i)
+str_done(str::AbstractString, i::Integer) = i > ncodeunits(str)
+
+@api develop str_next, str_done
 @api define_develop unsafe_crc32c, Fix2, CodeUnits
 @api public is_lowercase, is_uppercase, lowercase_first, uppercase_first
 

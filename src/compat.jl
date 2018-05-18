@@ -3,14 +3,22 @@
 
 const StringIndexError = UnicodeError
 
+parse_error(s) = throw(ParseError(s))
+_sprint(f, s) = sprint(endof(s), f, s)
+_sprint(f, s, c) = sprint(endof(s), f, s, c)
+
+const pwc = print_with_color
+
 @api define_public StringIndexError
 
+#=
 module Unicode
 export normalize, graphemes, isassigned
 const normalize  = Base.UTF8proc.normalize_string
 const graphemes  = Base.UTF8proc.graphemes
 const isassigned = Base.UTF8proc.is_assigned_char
 end
+=#
 
 Base.replace(str::String, pair::Pair{String,String}; count::Integer=0) =
     replace(str, pair.first, pair.second, count)
@@ -25,7 +33,7 @@ const is_letter = isalpha
 ##
 ## It is used to support the new string searching syntax on v0.6.2
 
-if !isdefined(Base, :Fix2)
+@static if !isdefined(Base, :Fix2)
 """
     Fix2(f, x)
 
@@ -44,7 +52,7 @@ end
 (f::Fix2)(y) = f.f(y, f.x)
 end
 
-if !method_exists(isequal, (Any,))
+@static if !method_exists(isequal, (Any,))
 """
     isequal(x)
 
@@ -59,7 +67,7 @@ isequal(x) = Fix2(isequal, x)
 const EqualTo = Fix2{typeof(isequal)}
 end
 
-if !method_exists(==, (Any,))
+@static if !method_exists(==, (Any,))
 """
     ==(x)
 
@@ -72,7 +80,7 @@ used to implement specialized methods.
 ==(x) = Fix2(==, x)
 end
 
-if !method_exists(in, (Any,))
+@static if !method_exists(in, (Any,))
 """
     in(x)
 
@@ -117,7 +125,8 @@ getindex(s::CodeUnits, i::Int) = codeunit(s.s, i)
 IndexStyle(::Type{<:CodeUnits}) = IndexLinear()
 start(s::CodeUnits) = 1
 next(s::CodeUnits, i) = (s[i], i+1)
-@inline done(s::CodeUnits, i) = i == length(s)+1
+@inline done(s::CodeUnits, i) = i > length(s)
+@static NEW_ITERATE && (iterate(s::CodeUnits, i) = (s[i], i+1))
 
 write(io::IO, s::CodeUnits) = write(io, s.s)
 
