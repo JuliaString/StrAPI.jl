@@ -49,7 +49,8 @@ const category_strings = [
 
 Base.rem(c::Category, t::Type{T}) where {T<:Integer}  = T(Int(c))
 Base.rem(c::Category, t::Type{T}) where {T<:Unsigned} = T(Int(c))
-Base.isequal(x::Category, t::Integer) = isequal(Int(x), t)
+Base.:(==)(x::Category, t::Integer) = Int(x) == t
+Base.:(==)(t::Integer, x::Category) = Int(x) == t
 Base.:(+)(x::Category, t::Integer)  = Category(Int(x) + t)
 Base.:(-)(x::Category, y::Integer)  = Category(Int(x) - y)
 Base.:(-)(x::Category, y::Category) = Int(x) - Int(y)

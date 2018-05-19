@@ -1,11 +1,12 @@
-# Based partly on code in LegacyStrings that used to be part of Julia
-# Licensed under MIT License, see LICENSE.md
+"""
+Based partly on code in LegacyStrings that used to be part of Julia
+Licensed under MIT License, see LICENSE.md
 
-# (Mostly written by Scott P. Jones in series of PRs contributed to the Julia project in 2015)
+(Written by Scott P. Jones in series of PRs contributed to the Julia project in 2015)
+"""
+module StrErrors
 
 ## Error messages for Unicode / UTF support
-
-module StrErrors
 
 const SHORT =
   "invalid UTF-8 sequence starting at index <<1>> (0x<<2>>) missing one or more continuation bytes"
@@ -87,6 +88,3 @@ end
 @noinline repeaterr(cnt) = throw(ArgumentError("repeat count $cnt must be >= 0"))
 
 @static isdefined(Base, :string_index_err) && (const index_error = Base.string_index_err)
-
-@api define_develop StrErrors, boundserr, strerror, nulerr, neginderr, codepoint_error,
-                    argerror, ascii_err, ncharerr, repeaterr, index_error

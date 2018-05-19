@@ -20,27 +20,24 @@ const CodeUnitTypes = Union{UInt8, UInt16, UInt32}
 symstr(s...)   = Symbol(string(s...))
 quotesym(s...) = Expr(:quote, symstr(s...))
 
-@api public found, find_result, basetype, charset, encoding, cse, codepoints
+@api public! found, find_result, basetype, charset, encoding, cse, codepoints
 
-@api define_public StringError
+@api public StringError
 
-@api define_develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
-                    _stdout, _sprint, parse_error
+@eval @api develop $(Symbol("@preserve"))
+@api develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
+             _stdout, _sprint, parse_error
 
-# This trick is necessary to pass the symbol of the macro name, and not try to evaluate it
-# Need some way of indicating a macro name to the @api macro
-@eval @api define_develop $(Symbol("@preserve"))
-
-@api base convert, getindex, length, map, collect, in, hash, sizeof, size, strides,
+@api base convert, getindex, length, map, collect, hash, sizeof, size, strides,
           pointer, unsafe_load, string, read, write, start, next, done, reverse,
           nextind, prevind, typemin, typemax, rem, size, ndims, first, last, eltype,
-          isless, isequal, ==, -, +, *, ^, cmp, promote_rule, one, repeat, filter,
+          isless, -, +, *, ^, cmp, promote_rule, one, repeat, filter,
           print, show, isimmutable, chop, chomp, replace, ascii, uppercase, lowercase,
           lstrip, rstrip, strip, lpad, rpad, split, rsplit, join, IOBuffer,
           containsnul, unsafe_convert, cconvert
 
 # Conditionally import or export names that are only in v0.6 or in master
-@api maybe_public codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
+@api base! codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
 
 @static NEW_ITERATE && (@api base iterate)
 
@@ -78,7 +75,8 @@ else # !V6_COMPAT
 
     # Location of some methods moved from Base.UTF8proc to Base.Unicode
     const UC = Base.Unicode
-    const CodeUnits = Base.CodeUnits
+
+    import Base.CodeUnits
 
     @api base IteratorSize
 
@@ -86,22 +84,26 @@ else # !V6_COMPAT
 
     pwc(c, io, str) = printstyled(io, str; color = c)
 
+    const graphemes = UC.graphemes
+
 end # !V6_COMPAT
+
+@api base isequal, ==, in
 
 pwc(c, l) = pwc(c, _stdout(), l)
 
 pr_ul(l)     = pwc(:underline, l)
 pr_ul(io, l) = pwc(:underline, io, l)
 
-@api develop pwc, pr_ul
+@api develop! pwc, pr_ul
 
 const str_next = @static NEW_ITERATE ? iterate : next
 str_done(str, i) = done(str, i)
 str_done(str::AbstractString, i::Integer) = i > ncodeunits(str)
 
-@api develop str_next, str_done
-@api define_develop unsafe_crc32c, Fix2, CodeUnits
-@api public is_lowercase, is_uppercase, lowercase_first, uppercase_first
+@api develop! str_next, str_done
+@api develop unsafe_crc32c, Fix2, CodeUnits
+@api public! is_lowercase, is_uppercase, lowercase_first, uppercase_first
 
 function found end
 function find_result end
@@ -124,14 +126,17 @@ function _isvalid end
 function _lowercase end
 function _uppercase end
 function _titlecase end
-@api develop _write, _print, _isvalid, _lowercase, _uppercase, _titlecase
+@api develop! _write, _print, _isvalid, _lowercase, _uppercase, _titlecase
 
 include("errors.jl")
 include("traits.jl")
 include("codepoints.jl")
 include("uni.jl")
 
-@api define_module Uni, StrErrors, UC
+@api modules Uni, StrErrors
+
+@api develop boundserr, strerror, nulerr, neginderr, codepoint_error,
+             argerror, ascii_err, ncharerr, repeaterr, index_error
 
 # Possibly import functions, give new names with underscores
 
@@ -167,7 +172,7 @@ for (pref, lst) in
     end
     push!(namlst, newname)
 end
-@eval @api public $(namlst...)
+@eval @api public! $(namlst...)
 
 # Handle renames where function was deprecated
 
@@ -175,24 +180,23 @@ end
 function is_alphabetic end
 function is_alphanumeric end
 function is_graphic end
-@api public is_alphabetic, is_alphanumeric, is_graphic, is_letter
+@api public! is_alphabetic, is_alphanumeric, is_graphic, is_letter
 
 # import and add new names from UTF8proc/Unicode
 
 const is_grapheme_break  = UC.isgraphemebreak
 const is_grapheme_break! = UC.isgraphemebreak!
-for nam in (:graphemes, :category_code, :category_abbrev, :category_string)
-    eval(parse(Expr, "const $nam = UC.$nam"))
-end
+const category_code      = UC.category_code
+const category_abbrev    = UC.category_abbrev
+const category_string    = UC.category_string
 
-@api public graphemes, is_grapheme_break, is_grapheme_break!,
-            category_code, category_abbrev, category_string
+@api public! is_grapheme_break, is_grapheme_break!, category_code, category_abbrev, category_string
 
 const fnd = find
-@api public fnd, find
+@api public! fnd, find
 
-@api define_develop create_vector, outhex, get_iobuffer
-@api develop utf8crc, ind2chr, chr2ind
+@api develop create_vector, outhex, get_iobuffer
+@api develop! utf8crc, ind2chr, chr2ind
 
 # Operations for find/search operations
 
@@ -210,7 +214,7 @@ abstract type Direction <: FindOp end
 struct Fwd   <: Direction end
 struct Rev   <: Direction end
 
-@api define_public FindOp, Direction, Fwd, Rev, First, Last, Next, Prev, Each, All
+@api public FindOp, Direction, Fwd, Rev, First, Last, Next, Prev, Each, All
 
 @api freeze
 

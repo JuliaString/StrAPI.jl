@@ -9,16 +9,7 @@ _sprint(f, s, c) = sprint(endof(s), f, s, c)
 
 const pwc = print_with_color
 
-@api define_public StringIndexError
-
-#=
-module Unicode
-export normalize, graphemes, isassigned
-const normalize  = Base.UTF8proc.normalize_string
-const graphemes  = Base.UTF8proc.graphemes
-const isassigned = Base.UTF8proc.is_assigned_char
-end
-=#
+@api public StringIndexError
 
 Base.replace(str::String, pair::Pair{String,String}; count::Integer=0) =
     replace(str, pair.first, pair.second, count)
@@ -27,8 +18,9 @@ const IteratorSize = Base.iteratorsize
 
 const is_letter = isalpha
 
-@api public IteratorSize
+@api public! IteratorSize
 
+@static if !isdefined(module_parent(current_module()), :Compat)
 ## Start of code from operators.jl =================================================
 ##
 ## It is used to support the new string searching syntax on v0.6.2
@@ -62,7 +54,7 @@ a function equivalent to `y -> isequal(y, x)`.
 The returned function is of type `Base.Fix2{typeof(isequal)}`, which can be
 used to implement specialized methods.
 """
-isequal(x) = Fix2(isequal, x)
+Base.isequal(x) = Fix2(isequal, x)
 
 const EqualTo = Fix2{typeof(isequal)}
 end
@@ -77,7 +69,7 @@ a function equivalent to `y -> y == x`.
 The returned function is of type `Base.Fix2{typeof(==)}`, which can be
 used to implement specialized methods.
 """
-==(x) = Fix2(==, x)
+Base.:(==)(x) = Fix2(==, x)
 end
 
 @static if !method_exists(in, (Any,))
@@ -90,8 +82,9 @@ a function equivalent to `y -> y in x`.
 The returned function is of type `Base.Fix2{typeof(in)}`, which can be
 used to implement specialized methods.
 """
-in(x) = Fix2(in, x)
+Base.in(x) = Fix2(in, x)
 const OccursIn = Fix2{typeof(in)}
+end
 end
 
 ## end of code from operators.jl =================================================
@@ -204,7 +197,7 @@ function get_iobuffer(siz)
     out
 end
 
-@api define_public copyto!, unsafe_copyto!, Nothing, Cvoid, AbstractChar
+@api public copyto!, unsafe_copyto!, Nothing, Cvoid, AbstractChar
 
 import Base: find, ind2chr, chr2ind
 

@@ -112,11 +112,11 @@ function is_multi end
 is_multi(::Type{T}) where {T<:AbstractString} = EncodingStyle(T) === MultiCodeUnitEncoding()
 is_multi(::T) where {T<:AbstractString} = is_multi(T)
 
-@api define_develop AlwaysValid, UnknownValidity,
-                    SingleCodeUnitEncoding, MultiCodeUnitEncoding,
-                    CharSetOther, CharSetBinary, CharSetASCIICompat, CharSetISOCompat,
-                    CharSetBMP, CharSetUnicode, CharSetUnicodePlus, CharSetUnknown,
-                    NoCompare, CodePointCompare, ByteCompare, ASCIICompare, WordCompare,
-                    UTF16Compare, WidenCompare
+@api develop AlwaysValid, UnknownValidity,
+             SingleCodeUnitEncoding, MultiCodeUnitEncoding,
+             CharSetOther, CharSetBinary, CharSetASCIICompat, CharSetISOCompat,
+             CharSetBMP, CharSetUnicode, CharSetUnicodePlus, CharSetUnknown,
+             NoCompare, CodePointCompare, ByteCompare, ASCIICompare, WordCompare,
+             UTF16Compare, WidenCompare
 
-@api develop ValidatedStyle, EncodingStyle, CharSetStyle, CompareStyle, is_multi
+@api develop! ValidatedStyle, EncodingStyle, CharSetStyle, CompareStyle, is_multi
