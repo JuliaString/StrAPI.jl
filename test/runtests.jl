@@ -4,8 +4,6 @@ using APITools
 
 @api test StrAPI
 
-@static V6_COMPAT ? (using Base.Test) : (using Test)
-
 @test is_ascii     == isascii
 @test is_hex_digit == isxdigit
 

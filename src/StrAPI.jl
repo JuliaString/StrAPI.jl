@@ -8,6 +8,7 @@ Licensed under MIT License, see LICENSE.md
 module StrAPI
 
 using APITools
+using APITools: m_eval
 
 const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
 
@@ -166,9 +167,9 @@ for (pref, lst) in
          : (symstr("is", nam), symstr("is_", nam)))
 
     if isdefined(Base, oldname)
-        eval(Expr(:const, Expr(:(=), newname, oldname)))
+        m_eval(Expr(:const, Expr(:(=), newname, oldname)))
     else
-        eval(Expr(:function, newname))
+        m_eval(Expr(:function, newname))
     end
     push!(namlst, newname)
 end
