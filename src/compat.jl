@@ -7,6 +7,12 @@ parse_error(s) = throw(ParseError(s))
 _sprint(f, s) = sprint(endof(s), f, s)
 _sprint(f, s, c) = sprint(endof(s), f, s, c)
 
+module Unicode
+const normalize  = Base.UTF8proc.normalize_string
+const graphemes  = Base.UTF8proc.graphemes
+const isassigned = Base.UTF8proc.is_assigned_char
+end
+
 const pwc = print_with_color
 
 @api public StringIndexError

@@ -76,6 +76,7 @@ else # !V6_COMPAT
 
     # Location of some methods moved from Base.UTF8proc to Base.Unicode
     const UC = Base.Unicode
+    const Unicode = UC
 
     import Base.CodeUnits
 
@@ -134,7 +135,7 @@ include("traits.jl")
 include("codepoints.jl")
 include("uni.jl")
 
-@api modules Uni, StrErrors
+@api modules Uni, StrErrors, Unicode
 
 @api develop boundserr, strerror, nulerr, neginderr, codepoint_error,
              argerror, ascii_err, ncharerr, repeaterr, index_error
