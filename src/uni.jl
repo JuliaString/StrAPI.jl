@@ -8,7 +8,7 @@ Licensed under MIT License, see LICENSE.md
 """
 module Uni
 
-using APITools: m_eval
+using ModuleInterfaceTools: m_eval
 
 @enum(Category::Int8,Cn,Lu,Ll,Lt,Lm,Lo,Mn,Mc,Me,Nd,Nl,No,Pc,Pd,Ps,Pe,Pi,Pf,Po,Sm,Sc,Sk,So,
                      Zs,Zl,Zp,Cc,Cf,Cs,Co,Ci,Cm)

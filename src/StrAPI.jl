@@ -7,8 +7,8 @@ Licensed under MIT License, see LICENSE.md
 """
 module StrAPI
 
-using APITools
-using APITools: m_eval
+using ModuleInterfaceTools
+using ModuleInterfaceTools: m_eval
 
 const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
 

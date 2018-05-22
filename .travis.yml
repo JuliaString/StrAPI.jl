@@ -27,7 +27,7 @@ git:
 
 ## uncomment the following lines to override the default test script
 script:
-  - julia -e 'VERSION < v"0.7.0-DEV" || (using Pkg); Pkg.clone("https://github.com/JuliaString/APITools.jl"); Pkg.clone(pwd()); Pkg.test("StrAPI"; coverage=true)'
+  - julia -e 'VERSION < v"0.7.0-DEV" || (using Pkg); Pkg.clone("https://github.com/JuliaString/ModuleInterfaceTools.jl"); Pkg.clone(pwd()); Pkg.test("StrAPI"; coverage=true)'
 after_success:
   # push coverage results to Coveralls
   - julia -e 'VERSION < v"0.7.0-DEV" || (using Pkg); cd(Pkg.dir("StrAPI")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

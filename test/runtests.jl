@@ -1,6 +1,6 @@
 # This file is part of StrAPI, License is MIT: LICENSE.md
 
-using APITools
+using ModuleInterfaceTools
 
 @api test StrAPI
 
