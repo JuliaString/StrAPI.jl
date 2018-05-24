@@ -1,0 +1,6 @@
+desc = "API for Str and Chr types"
+keywords = ["API", "Strings", "Characters"]
+license = "MIT"
+name = "StrAPI"
+uuid = "7309dffa-5f6c-11e8-0bac-7b275211ca99"
+repo = "https://github.com/JuliaString/StrAPI.jl.git"
