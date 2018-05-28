@@ -4,8 +4,8 @@ authors = ["ScottPJones <scottjones@alum.mit.edu>"]
 keywords = ["API", "Strings", "Characters"]
 license = "MIT"
 uuid = "69e7dfc3-c4d0-5e14-8d95-d6042a05b383"
-repo = "https://github.com/JuliaString/StrAPI.jl.git"
-git-tree-sha1 = "ee8eeb3b8a3bbff685c38c4815fb3b8b4c3538ee"
+repo-rev = ""
+repo-url = "https://github.com/JuliaString/StrAPI.jl.git"
 
 version = "0.1.1"
 [deps]
