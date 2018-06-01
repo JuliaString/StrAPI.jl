@@ -3,11 +3,13 @@ desc = "API for Str and Chr types"
 keywords = ["API", "Strings", "Characters"]
 license = "MIT"
 name = "StrAPI"
-repo-rev = ""
-repo-url = "https://github.com/JuliaString/StrAPI.jl.git"
 uuid = "69e7dfc3-c4d0-5e14-8d95-d6042a05b383"
-version = "0.1.1"
 
 [deps]
-ModuleInterfaceTools = "5cb8414e-7aab-5a03-a681-351269c074bf"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Pkg     = "fe1c5a76-5840-53d2-82f9-288dd83ce2ce"
+Test    = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Random  = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+ModuleInterfaceTools = "5cb8414e-7aab-5a03-a681-351269c074bf" # x13gh7y6id3fbmke
+StrAPI               = "69e7dfc3-c4d0-5e14-8d95-d6042a05b383" # pyw9o1y3wywo95tt
