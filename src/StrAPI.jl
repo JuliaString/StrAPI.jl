@@ -8,11 +8,9 @@ Licensed under MIT License, see LICENSE.md
 module StrAPI
 
 using ModuleInterfaceTools
-using ModuleInterfaceTools: m_eval
+using ModuleInterfaceTools: m_eval, _stdout, _stderr
 
 const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
-
-_stdout() = @static V6_COMPAT ? STDOUT : stdout
 
 const MaybeSub{T} = Union{T, SubString{T}} where {T<:AbstractString}
 
@@ -25,9 +23,8 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 
 @api public StringError
 
-@eval @api develop $(Symbol("@preserve"))
 @api develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
-             _stdout, _sprint, parse_error
+             _stdout, _sprint, parse_error, "@preserve"
 
 @api base convert, getindex, length, map, collect, hash, sizeof, size, strides,
           pointer, unsafe_load, string, read, write, start, next, done, reverse,
