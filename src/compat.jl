@@ -3,7 +3,6 @@
 
 const StringIndexError = UnicodeError
 
-parse_error(s) = throw(ParseError(s))
 _sprint(f, s) = sprint(endof(s), f, s)
 _sprint(f, s, c) = sprint(endof(s), f, s, c)
 

@@ -8,7 +8,7 @@ Licensed under MIT License, see LICENSE.md
 """
 module Uni
 
-using ModuleInterfaceTools: m_eval
+using ModuleInterfaceTools: m_eval, cur_mod
 
 @enum(Category::Int8,Cn,Lu,Ll,Lt,Lm,Lo,Mn,Mc,Me,Nd,Nl,No,Pc,Pd,Ps,Pe,Pi,Pf,Po,Sm,Sc,Sk,So,
                      Zs,Zl,Zp,Cc,Cf,Cs,Co,Ci,Cm)
@@ -58,7 +58,8 @@ Base.:(-)(x::Category, y::Integer)  = Category(Int(x) - y)
 Base.:(-)(x::Category, y::Category) = Int(x) - Int(y)
 
 for i = Int(typemin(Category)):Int(typemax(Category))
-    m_eval(Expr(:macrocall, Symbol("@doc"),
+    m_eval(cur_mod(),
+           Expr(:macrocall, Symbol("@doc"),
                 string("Unicode Category: ", category_strings[i+1]),
                 Symbol(Category(i))))
 end

@@ -8,7 +8,7 @@ Licensed under MIT License, see LICENSE.md
 module StrAPI
 
 using ModuleInterfaceTools
-using ModuleInterfaceTools: m_eval, _stdout, _stderr
+using ModuleInterfaceTools: m_eval, _stdout, _stderr, cur_mod
 
 const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
 
@@ -24,7 +24,7 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 @api public StringError
 
 @api develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
-             _stdout, _sprint, parse_error, "@preserve"
+             _stdout, _sprint, "@preserve"
 
 @api base convert, getindex, length, map, collect, hash, sizeof, size, strides,
           pointer, unsafe_load, string, read, write, start, next, done, reverse,
@@ -43,7 +43,6 @@ quotesym(s...) = Expr(:quote, symstr(s...))
     include("compat.jl")
 else # !V6_COMPAT
 
-    parse_error(s) = throw(Base.Meta.ParseError(s))
     _sprint(f, s) = sprint(f, s; sizehint=lastindex(s))
     _sprint(f, s, c) = sprint(f, s, c; sizehint=lastindex(s))
 
@@ -164,11 +163,11 @@ for (pref, lst) in
          ? (symstr("is", nam[1]), symstr("is_", nam[2]))
          : (symstr("is", nam), symstr("is_", nam)))
 
-    if isdefined(Base, oldname)
-        m_eval(Expr(:const, Expr(:(=), newname, oldname)))
-    else
-        m_eval(Expr(:function, newname))
-    end
+    m_eval(cur_mod(),
+           (isdefined(Base, oldname)
+            ? Expr(:const, Expr(:(=), newname, oldname))
+            : Expr(:function, newname)))
+
     push!(namlst, newname)
 end
 @eval @api public! $(namlst...)
