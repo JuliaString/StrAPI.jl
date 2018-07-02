@@ -24,7 +24,7 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 @api public StringError
 
 @api develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
-             _stdout, _sprint, "@preserve"
+             _stdout, "@preserve"
 
 @api base convert, getindex, length, map, collect, hash, sizeof, size, strides,
           pointer, unsafe_load, string, read, write, start, next, done, reverse,
@@ -42,9 +42,6 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 @static if V6_COMPAT
     include("compat.jl")
 else # !V6_COMPAT
-
-    _sprint(f, s) = sprint(f, s; sizehint=lastindex(s))
-    _sprint(f, s, c) = sprint(f, s, c; sizehint=lastindex(s))
 
     using Random
 

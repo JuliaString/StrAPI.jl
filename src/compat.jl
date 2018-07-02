@@ -3,9 +3,6 @@
 
 const StringIndexError = UnicodeError
 
-_sprint(f, s) = sprint(endof(s), f, s)
-_sprint(f, s, c) = sprint(endof(s), f, s, c)
-
 module Unicode
 const normalize  = Base.UTF8proc.normalize_string
 const graphemes  = Base.UTF8proc.graphemes
