@@ -8,7 +8,7 @@ Licensed under MIT License, see LICENSE.md
 module StrAPI
 
 using ModuleInterfaceTools
-using ModuleInterfaceTools: m_eval, _stdout, _stderr, cur_mod
+using ModuleInterfaceTools: m_eval, _stdout, _stderr
 
 const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
 
@@ -136,7 +136,9 @@ include("uni.jl")
 # Possibly import functions, give new names with underscores
 
 # Todo: Should probably have a @api function for importing/defining renamed functions
-namlst = Symbol[]
+const namlst = Symbol[]
+const mod = @static V6_COMPAT ? current_module() : @__MODULE__
+
 for (pref, lst) in
     ((0,
       ((:textwidth,      :text_width),
@@ -160,7 +162,7 @@ for (pref, lst) in
          ? (symstr("is", nam[1]), symstr("is_", nam[2]))
          : (symstr("is", nam), symstr("is_", nam)))
 
-    m_eval(cur_mod(),
+    m_eval(mod,
            (isdefined(Base, oldname)
             ? Expr(:const, Expr(:(=), newname, oldname))
             : Expr(:function, newname)))
