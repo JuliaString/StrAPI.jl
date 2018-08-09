@@ -123,6 +123,8 @@ function _uppercase end
 function _titlecase end
 @api develop! _write, _print, _isvalid, _lowercase, _uppercase, _titlecase
 
+const curmod = @static V6_COMPAT ? current_module() : @__MODULE__
+
 include("errors.jl")
 include("traits.jl")
 include("codepoints.jl")
@@ -137,7 +139,6 @@ include("uni.jl")
 
 # Todo: Should probably have a @api function for importing/defining renamed functions
 const namlst = Symbol[]
-const mod = @static V6_COMPAT ? current_module() : @__MODULE__
 
 for (pref, lst) in
     ((0,
@@ -162,7 +163,7 @@ for (pref, lst) in
          ? (symstr("is", nam[1]), symstr("is_", nam[2]))
          : (symstr("is", nam), symstr("is_", nam)))
 
-    m_eval(mod,
+    m_eval(curmod,
            (isdefined(Base, oldname)
             ? Expr(:const, Expr(:(=), newname, oldname))
             : Expr(:function, newname)))
