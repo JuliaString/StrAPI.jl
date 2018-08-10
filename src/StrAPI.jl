@@ -27,7 +27,7 @@ quotesym(s...) = Expr(:quote, symstr(s...))
              _stdout, "@preserve"
 
 @api base convert, getindex, length, map, collect, hash, sizeof, size, strides,
-          pointer, unsafe_load, string, read, write, start, next, done, reverse,
+          pointer, unsafe_load, string, read, write, reverse,
           nextind, prevind, typemin, typemax, rem, size, ndims, first, last, eltype,
           isless, -, +, *, ^, cmp, promote_rule, one, repeat, filter,
           print, show, isimmutable, chop, chomp, replace, ascii, uppercase, lowercase,
@@ -37,7 +37,7 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 # Conditionally import or export names that are only in v0.6 or in master
 @api base! codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
 
-@static NEW_ITERATE && (@api base iterate)
+@static NEW_ITERATE ? (@api base iterate) : (@api base start, next, done)
 
 @static if V6_COMPAT
     include("compat.jl")
@@ -93,7 +93,6 @@ pr_ul(io, l) = pwc(:underline, io, l)
 @api develop! pwc, pr_ul
 
 const str_next = @static NEW_ITERATE ? iterate : next
-str_done(str, i) = done(str, i)
 str_done(str::AbstractString, i::Integer) = i > ncodeunits(str)
 
 @api develop! str_next, str_done
