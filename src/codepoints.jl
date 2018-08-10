@@ -24,7 +24,10 @@ julia> collect(codepoints(a))
 codepoints(xs) = CodePoints(xs)
 eltype(::Type{<:CodePoints{S}}) where {S} = eltype(S)
 length(it::CodePoints) = length(it.xs)
+@static if NEW_ITERATE
+iterate(it::CodePoints, state) = iterate(it.xs, state)
+else
 start(it::CodePoints) = 1
 done(it::CodePoints, state) = state > ncodeunits(it.xs)
-next(it::CodePoints, state) = @static NEW_ITERATE ? iterate(it.xs, state) : next(it.xs, state)
-@static NEW_ITERATE && (iterate(it::CodePoints, state) = iterate(it.xs, state))
+next(it::CodePoints, state) = next(it.xs, state)
+end
