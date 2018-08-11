@@ -4,7 +4,7 @@ keywords = ["Strings", "Characters", "Encodings"]
 license = "MIT"
 desc = "Basic API for string encodings, character sets, etc."
 authors = ["ScottPJones <scottjones@alum.mit.edu>"]
-version = "0.1.6"
+version = "0.1.7"
 
 [deps]
 ModuleInterfaceTools = "5cb8414e-7aab-5a03-a681-351269c074bf"
