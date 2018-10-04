@@ -42,9 +42,6 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 @static if V6_COMPAT
     include("compat.jl")
 else # !V6_COMPAT
-
-    using Random
-
     import Base.GC: @preserve
 
     function find end
