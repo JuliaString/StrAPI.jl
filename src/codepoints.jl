@@ -25,7 +25,7 @@ codepoints(xs) = CodePoints(xs)
 eltype(::Type{<:CodePoints{S}}) where {S} = eltype(S)
 length(it::CodePoints) = length(it.xs)
 @static if NEW_ITERATE
-iterate(it::CodePoints, state) = iterate(it.xs, state)
+iterate(it::CodePoints, state=1) = iterate(it.xs, state)
 else
 start(it::CodePoints) = 1
 done(it::CodePoints, state) = state > ncodeunits(it.xs)

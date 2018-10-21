@@ -119,7 +119,7 @@ strides(s::CodeUnits) = (1,)
 getindex(s::CodeUnits, i::Int) = codeunit(s.s, i)
 IndexStyle(::Type{<:CodeUnits}) = IndexLinear()
 @static if NEW_ITERATE
-    iterate(s::CodeUnits, i) = (s[i], i+1)
+    iterate(s::CodeUnits, i=1) = (s[i], i+1)
 else
     start(s::CodeUnits) = 1
     next(s::CodeUnits, i) = (s[i], i+1)
