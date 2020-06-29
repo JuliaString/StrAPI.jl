@@ -1,9 +1,12 @@
 # StrAPI
 
-| **Info** | **Windows** | **Linux & MacOS** | **Package Evaluator** | **CodeCov** | **Coveralls** |
-|:------------------:|:------------------:|:---------------------:|:-----------------:|:---------------------:|:-----------------:|
-| [![][license-img]][license-url] | [![][app-s-img]][app-s-url] | [![][travis-s-img]][travis-url] | [![][pkg-s-img]][pkg-s-url] | [![][codecov-img]][codecov-url] | [![][coverall-s-img]][coverall-s-url]
-| [![][gitter-img]][gitter-url] | [![][app-m-img]][app-m-url] | [![][travis-m-img]][travis-url] | [![][pkg-m-img]][pkg-m-url] | [![][codecov-img]][codecov-url] | [![][coverall-m-img]][coverall-m-url]
+[pkg-url]: https://github.com/JuliaString/StrAPI.jl.git
+
+[julia-url]:    https://github.com/JuliaLang/Julia
+[julia-release]:https://img.shields.io/github/release/JuliaLang/julia.svg
+
+[release]:      https://img.shields.io/github/release/JuliaString/StrAPI.jl.svg
+[release-date]: https://img.shields.io/github/release-date/JuliaString/StrAPI.jl.svg
 
 [license-img]:  http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat
 [license-url]:  LICENSE.md
@@ -15,23 +18,17 @@
 [travis-s-img]: https://travis-ci.org/JuliaString/StrAPI.jl.svg
 [travis-m-img]: https://travis-ci.org/JuliaString/StrAPI.jl.svg?branch=master
 
-[app-s-url]:    https://ci.appveyor.com/project/ScottPJones/strapi-jl
-[app-m-url]:    https://ci.appveyor.com/project/ScottPJones/strapi-jl/branch/master
-[app-s-img]:    https://ci.appveyor.com/api/projects/status/pyw9o1y3wywo95tt?svg=true
-[app-m-img]:    https://ci.appveyor.com/api/projects/status/pyw9o1y3wywo95tt/branch/master?svg=true
-
-[pkg-s-url]:    http://pkg.julialang.org/detail/StrAPI
-[pkg-m-url]:    http://pkg.julialang.org/detail/StrAPI
-[pkg-s-img]:    http://pkg.julialang.org/badges/StrAPI_0.6.svg
-[pkg-m-img]:    http://pkg.julialang.org/badges/StrAPI_0.7.svg
-
 [codecov-url]:  https://codecov.io/gh/JuliaString/StrAPI.jl
 [codecov-img]:  https://codecov.io/gh/JuliaString/StrAPI.jl/branch/master/graph/badge.svg
 
-[coverall-s-url]: https://coveralls.io/github/JuliaString/StrAPI.jl
-[coverall-m-url]: https://coveralls.io/github/JuliaString/StrAPI.jl?branch=master
-[coverall-s-img]: https://coveralls.io/repos/github/JuliaString/StrAPI.jl/badge.svg
-[coverall-m-img]: https://coveralls.io/repos/github/JuliaString/StrAPI.jl/badge.svg?branch=master
+[contrib]:    https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
+
+[![][release]][pkg-url] [![][release-date]][pkg-url] [![][license-img]][license-url] [![contributions welcome][contrib]](https://github.com/JuliaString/StrAPI.jl/issues)
+
+| **Julia Version** | **Unit Tests** | **Coverage** |
+|:------------------:|:------------------:|:---------------------:|
+| [![][julia-release]][julia-url] | [![][travis-s-img]][travis-url] | [![][codecov-img]][codecov-url]
+| Julia Latest | [![][travis-m-img]][travis-url] | [![][codecov-img]][codecov-url]
 
 This package provides the base API, which the other packages in JuliaString can all extend
 It provides a cleaner API (IMO) for many of the character and string related functions.
