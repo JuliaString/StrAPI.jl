@@ -55,10 +55,6 @@ const NORMALIZE =
 
 end # module StrErrors
 
-@static if isdefined(Base, :UnicodeError)
-const StringError = UnicodeError
-else
-
 struct StringError <: Exception
     errmsg::String           # Error message
     errpos::Int32            # Position of invalid character
@@ -70,7 +66,7 @@ _repmsg(msg, pos, chr) =
     replace(replace(msg, "<<1>>" => string(pos)), "<<2>>" =>  outhex(chr))
 Base.show(io::IO, exc::StringError) =
     print(io, "StringError: ", _repmsg(exc.errmsg, exc.errpos, exc.errchr))
-end
+
 (::Type{StringError})(msg, pos=0%Int32) = StringError(msg, pos%Int32, 0%UInt32)
 
 @noinline boundserr(s, pos)      = throw(BoundsError(s, pos))
@@ -87,4 +83,4 @@ end
 @noinline ncharerr(n)    = throw(ArgumentError(string("nchar (", n, ") must be not be negative")))
 @noinline repeaterr(cnt) = throw(ArgumentError("repeat count $cnt must be >= 0"))
 
-@static isdefined(Base, :string_index_err) && (const index_error = Base.string_index_err)
+const index_error = Base.string_index_err
