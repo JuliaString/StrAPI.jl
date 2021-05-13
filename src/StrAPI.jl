@@ -2,15 +2,13 @@ __precompile__(true)
 """
 StrAPI package
 
-Copyright 2017-2018 Gandalf Software, Inc., Scott P. Jones
+Copyright 2017-2020 Gandalf Software, Inc., Scott P. Jones
 Licensed under MIT License, see LICENSE.md
 """
 module StrAPI
 
 using ModuleInterfaceTools
 using ModuleInterfaceTools: m_eval, _stdout, _stderr
-
-const NEW_ITERATE = VERSION >= v"0.7.0-DEV.5127"
 
 const MaybeSub{T} = Union{T, SubString{T}} where {T<:AbstractString}
 
@@ -23,8 +21,7 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 
 @api public StringError
 
-@api develop NEW_ITERATE, CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym,
-             _stdout, "@preserve"
+@api develop CodeUnitTypes, CodePoints, MaybeSub, symstr, quotesym, _stdout, "@preserve"
 
 @api base convert, getindex, length, map, collect, hash, sizeof, size, strides,
           pointer, unsafe_load, string, read, write, reverse,
@@ -37,48 +34,43 @@ quotesym(s...) = Expr(:quote, symstr(s...))
 # Conditionally import or export names that are only in v0.6 or in master
 @api base! codeunit, codeunits, ncodeunits, codepoint, thisind, firstindex, lastindex
 
-@static NEW_ITERATE ? (@api base iterate) : (@api base start, next, done)
+@api base iterate
 
-@static if V6_COMPAT
-    include("compat.jl")
-else # !V6_COMPAT
-    import Base.GC: @preserve
+import Base.GC: @preserve
 
-    function find end
-    function ind2chr end
-    function chr2ind end
+function find end
+function ind2chr end
+function chr2ind end
 
-    # Handle changes in array allocation
-    create_vector(T, len)  = Vector{T}(undef, len)
+# Handle changes in array allocation
+create_vector(T, len)  = Vector{T}(undef, len)
 
-    # Add new short name for deprecated hex function
-    outhex(v, p=1) = string(v, base=16, pad=p)
+# Add new short name for deprecated hex function
+outhex(v, p=1) = string(v, base=16, pad=p)
 
-    get_iobuffer(siz) = IOBuffer(sizehint=siz)
+get_iobuffer(siz) = IOBuffer(sizehint=siz)
 
-    const utf8crc         = Base._crc32c
-    const is_lowercase    = islowercase
-    const is_uppercase    = isuppercase
-    const lowercase_first = lowercasefirst
-    const uppercase_first = uppercasefirst
+const utf8crc         = Base._crc32c
+const is_lowercase    = islowercase
+const is_uppercase    = isuppercase
+const lowercase_first = lowercasefirst
+const uppercase_first = uppercasefirst
 
-    using Base: unsafe_crc32c, Fix2
+using Base: unsafe_crc32c, Fix2
 
-    # Location of some methods moved from Base.UTF8proc to Base.Unicode
-    const UC = Base.Unicode
-    const Unicode = UC
+# Location of some methods moved from Base.UTF8proc to Base.Unicode
+const UC = Base.Unicode
+const Unicode = UC
 
-    import Base.CodeUnits
+import Base.CodeUnits
 
-    @api base IteratorSize
+@api base IteratorSize
 
-    const is_letter = isletter
+const is_letter = isletter
 
-    pwc(c, io, str) = printstyled(io, str; color = c)
+pwc(c, io, str) = printstyled(io, str; color = c)
 
-    const graphemes = UC.graphemes
-
-end # !V6_COMPAT
+const graphemes = UC.graphemes
 
 @api base isequal, ==, in
 
@@ -89,10 +81,9 @@ pr_ul(io, l) = pwc(:underline, io, l)
 
 @api develop! pwc, pr_ul
 
-const str_next = @static NEW_ITERATE ? iterate : next
 str_done(str::AbstractString, i::Integer) = i > ncodeunits(str)
 
-@api develop! str_next, str_done
+@api develop! str_done
 @api develop unsafe_crc32c, Fix2, CodeUnits
 @api public! is_lowercase, is_uppercase, lowercase_first, uppercase_first
 
@@ -118,8 +109,6 @@ function _lowercase end
 function _uppercase end
 function _titlecase end
 @api develop! _write, _print, _isvalid, _lowercase, _uppercase, _titlecase
-
-const curmod = @static V6_COMPAT ? current_module() : @__MODULE__
 
 include("errors.jl")
 include("traits.jl")
@@ -159,7 +148,7 @@ for (pref, lst) in
          ? (symstr("is", nam[1]), symstr("is_", nam[2]))
          : (symstr("is", nam), symstr("is_", nam)))
 
-    m_eval(curmod,
+    m_eval(@__MODULE__,
            (isdefined(Base, oldname)
             ? Expr(:const, Expr(:(=), newname, oldname))
             : Expr(:function, newname)))

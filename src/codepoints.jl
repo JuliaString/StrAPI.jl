@@ -1,6 +1,6 @@
 # CodePoints iterator
 #
-# Copyright 2017-2018 Gandalf Software, Inc., Scott P. Jones
+# Copyright 2017-2020 Gandalf Software, Inc., Scott P. Jones
 # Licensed under MIT License, see LICENSE.md
 
 struct CodePoints{T<:AbstractString}
@@ -24,10 +24,4 @@ julia> collect(codepoints(a))
 codepoints(xs) = CodePoints(xs)
 eltype(::Type{<:CodePoints{S}}) where {S} = eltype(S)
 length(it::CodePoints) = length(it.xs)
-@static if NEW_ITERATE
 iterate(it::CodePoints, state=1) = iterate(it.xs, state)
-else
-start(it::CodePoints) = 1
-done(it::CodePoints, state) = state > ncodeunits(it.xs)
-next(it::CodePoints, state) = next(it.xs, state)
-end

@@ -1,7 +1,7 @@
 """
 Unicode Normalization, Category constants and documentation
 
-Copyright 2017-2018 Gandalf Software, Inc. Scott P. Jones,
+Copyright 2017-2020 Gandalf Software, Inc. Scott P. Jones,
 and other contributors to the UTF8proc library (for the documentation of the API)
 
 Licensed under MIT License, see LICENSE.md
@@ -57,10 +57,8 @@ Base.:(+)(x::Category, t::Integer)  = Category(Int(x) + t)
 Base.:(-)(x::Category, y::Integer)  = Category(Int(x) - y)
 Base.:(-)(x::Category, y::Category) = Int(x) - Int(y)
 
-const curmod = @static VERSION < v"0.7" ? current_module() : @__MODULE__
-
 for i = Int(typemin(Category)):Int(typemax(Category))
-    m_eval(curmod,
+    m_eval(@__MODULE__,
            Expr(:macrocall, Symbol("@doc"),
                 string("Unicode Category: ", category_strings[i+1]),
                 Symbol(Category(i))))

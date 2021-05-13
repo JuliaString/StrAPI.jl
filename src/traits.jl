@@ -1,4 +1,4 @@
-# Copyright 2017-2018 Gandalf Software, Inc. (Scott Paul Jones)
+# Copyright 2017-2020 Gandalf Software, Inc. (Scott Paul Jones)
 # Licensed under MIT License, see LICENSE.md
 
 # These use the "Holy Trait Trick", which was created by @timholy (Tim Holy),
